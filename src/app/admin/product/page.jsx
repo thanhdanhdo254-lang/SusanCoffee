@@ -31,38 +31,27 @@ export default function AdminProduct() {
 
   // 2. Hàm xóa sản phẩm
   const handleDelete = async (id) => {
-    if (!confirm("Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?")) return;
+  if (!confirm("Bạn có chắc chắn muốn xóa?")) return;
 
-    try {
-      // Đảm bảo API_URL có giá trị, nếu không có thì mặc định dùng root "/"
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
-      
-      const res = await fetch(`${baseUrl}/api/products/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        }
-      });
+  try {
+    // Đảm bảo dùng API_URL đã cấu hình trên Vercel
+    const res = await fetch(`${API_URL}/api/products/${id}`, {
+      method: "DELETE",
+    });
 
-      // Kiểm tra nếu response trả về không phải JSON (lỗi 404 thường trả về trang HTML)
-      const contentType = res.headers.get("content-type");
-      if (!res.ok || !contentType || !contentType.includes("application/json")) {
-        throw new Error("Server không phản hồi đúng định dạng hoặc sai đường dẫn API (404)");
-      }
+    const result = await res.json();
 
-      const result = await res.json();
-
-      if (res.ok || result.status === "success") {
-        alert("Đã xóa sản phẩm thành công!");
-        fetchProducts(); 
-      } else {
-        alert("Xóa thất bại: " + (result.message || "Lỗi hệ thống"));
-      }
-    } catch (error) {
-      console.error("Lỗi xóa:", error);
-      alert("Lỗi: " + error.message);
+    if (res.ok && result.status === "success") {
+      alert("Xóa thành công!");
+      fetchProducts();
+    } else {
+      // In ra lỗi cụ thể từ API để dễ debug
+      alert("Lỗi: " + (result.error || "Không thể xóa"));
     }
-  };
+  } catch (error) {
+    alert("Lỗi kết nối: " + error.message);
+  }
+};
 
   return (
     <div className="container-fluid py-4">
