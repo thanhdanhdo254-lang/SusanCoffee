@@ -53,22 +53,44 @@ export default function Cart() {
 
   // Thanh toán
   const handleOrder = async () => {
+    // 1. Kiểm tra nếu giỏ hàng trống
+    if (cart.length === 0) {
+      alert("Giỏ hàng của bạn đang trống!");
+      return;
+    }
+
+    // 2. Kiểm tra nếu chưa chọn bàn (inputTable mặc định là null hoặc -1)
+    if (!inputTable || inputTable === "-1") {
+      alert("Vui lòng chọn vị trí bàn trước khi thanh toán!");
+      return;
+    }
+
     const order = {
-      name: "Tên Khách", // sau này lấy từ thông tin đăng nhập
+      name: "Khách hàng Susan", // Bạn có thể để mặc định hoặc lấy từ login
       table_id: inputTable,
       order_items: cart,
       total,
     };
 
-      try {
+    try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(order),
       });
-      // ... (giữ nguyên logic xử lý kết quả)
+
+      // 3. Phải đọc dữ liệu trả về từ API
+      const result = await res.json();
+
+      if (result.code === "success") {
+        alert(result.message); // Hiển thị: Đơn hàng đã được tạo mới thành công!
+        handleRemoveAll();     // Xóa sạch giỏ hàng sau khi đặt xong
+        router.push("/");      // Chuyển hướng về trang chủ
+      } else {
+        alert("Có lỗi xảy ra: " + (result.error || "Không rõ nguyên nhân"));
+      }
     } catch (err) {
-      console.error(err);
+      console.error("Lỗi kết nối:", err);
       alert("Không thể kết nối tới server!");
     }
   };
