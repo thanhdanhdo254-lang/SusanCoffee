@@ -86,10 +86,13 @@ export default function AdminProduct() {
                     <tr key={product._id}>
                       <td>
                         <img 
-                          src={product.image || "/no-image.png"} 
+                          // Nếu là link web (http) thì dùng luôn, nếu là tên file thì lấy từ thư mục /images/
+                          src={product.image?.startsWith('http') ? product.image : `/images/${product.image}`} 
                           alt={product.name}
                           className="rounded"
                           style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                          // Hiện ảnh mặc định nếu đường dẫn bị hỏng
+                          onError={(e) => { e.target.src = "/no-image.png"; }} 
                         />
                       </td>
                       <td>
