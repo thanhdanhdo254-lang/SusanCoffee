@@ -86,13 +86,17 @@ export default function AdminProduct() {
                     <tr key={product._id}>
                       <td>
                         <img 
-                          // Nếu là link web (http) thì dùng luôn, nếu là tên file thì lấy từ thư mục /images/
-                          src={product.image?.startsWith('http') ? product.image : `/images/${product.image}`} 
+                          src={
+                            product.image?.startsWith('http') 
+                              ? product.image           // Nếu là link web thì giữ nguyên
+                              : `/img/${product.image}` // Đổi từ /images/ thành /img/ cho đúng với thư mục của bạn
+                          } 
                           alt={product.name}
                           className="rounded"
                           style={{ width: "50px", height: "50px", objectFit: "cover" }}
-                          // Hiện ảnh mặc định nếu đường dẫn bị hỏng
-                          onError={(e) => { e.target.src = "/no-image.png"; }} 
+                          onError={(e) => { 
+                            e.target.src = "https://placehold.co/100x100?text=No+Image"; 
+                          }} 
                         />
                       </td>
                       <td>
