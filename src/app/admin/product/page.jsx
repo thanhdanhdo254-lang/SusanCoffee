@@ -34,19 +34,33 @@ export default function AdminProduct() {
     if (!confirm("Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?")) return;
 
     try {
-      const res = await fetch(`${API_URL}/api/products/${id}`, {
+      // Đảm bảo API_URL có giá trị, nếu không có thì mặc định dùng root "/"
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      
+      const res = await fetch(`${baseUrl}/api/products/${id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        }
       });
+
+      // Kiểm tra nếu response trả về không phải JSON (lỗi 404 thường trả về trang HTML)
+      const contentType = res.headers.get("content-type");
+      if (!res.ok || !contentType || !contentType.includes("application/json")) {
+        throw new Error("Server không phản hồi đúng định dạng hoặc sai đường dẫn API (404)");
+      }
+
       const result = await res.json();
 
       if (res.ok || result.status === "success") {
         alert("Đã xóa sản phẩm thành công!");
-        fetchProducts(); // Tải lại danh sách
+        fetchProducts(); 
       } else {
         alert("Xóa thất bại: " + (result.message || "Lỗi hệ thống"));
       }
     } catch (error) {
-      alert("Lỗi kết nối server!");
+      console.error("Lỗi xóa:", error);
+      alert("Lỗi: " + error.message);
     }
   };
 
