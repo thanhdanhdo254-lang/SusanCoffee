@@ -108,12 +108,16 @@ export default function AdminProduct() {
                         {Number(product.price).toLocaleString()}đ
                       </td>
                       <td>
-                        {product.status === "active" ? (
-                          <span className="badge bg-success-subtle text-success px-3">Đang bán</span>
-                        ) : (
-                          <span className="badge bg-secondary-subtle text-secondary px-3">Ngừng bán</span>
-                        )}
-                      </td>
+                          {product.status === "active" ? (
+                            <span className="badge bg-success-subtle text-success px-3 border border-success">
+                              Đang bán
+                            </span>
+                          ) : (
+                            <span className="badge bg-danger-subtle text-danger px-3 border border-danger">
+                              Ngừng bán
+                            </span>
+                          )}
+                        </td>
                       <td className="text-end">
                         <div className="btn-group">
                           <Link
