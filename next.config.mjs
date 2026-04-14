@@ -1,11 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    ignoreDuringBuilds: true, // Thêm dòng này
+    ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true, // Nếu bạn dùng TS thì thêm dòng này luôn
+    ignoreBuildErrors: true,
   },
-  images: { unoptimized: true }
+  images: { 
+    unoptimized: true 
+  }
 };
-export default nextConfig;
+
+export default nextConfig; // Dùng export default cho .mjs là đúng
