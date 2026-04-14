@@ -4,7 +4,7 @@ export async function GET(request) {
     try {
         const client = await clientPromise;
         // SỬA TẠI ĐÂY: Điền tên database khớp với Compass (1 chữ f)
-        const db = client.db("Susan-Coffee"); 
+        const db = client.db("SusanCoffee"); 
         const tableList = await db.collection("tables").find({}).toArray();
         return Response.json(tableList);
     } catch (error) {
@@ -17,7 +17,7 @@ export async function POST(request) {
     try {
         const client = await clientPromise;
         // SỬA TẠI ĐÂY: Điền tên database khớp với Compass (1 chữ f)
-        const db = client.db("Susan-Coffee"); 
+        const db = client.db("SusanCoffee"); 
         const body = await request.json();
         const { name, location } = body;
         if (!name || !location) {

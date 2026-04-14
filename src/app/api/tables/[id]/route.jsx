@@ -27,7 +27,7 @@ export async function DELETE(request, { params }) {
     try {
         const client = await clientPromise;
         // SỬA TẠI ĐÂY: Điền tên database khớp với Compass (1 chữ f)
-        const db = client.db("Susan-Coffee"); 
+        const db = client.db("SusanCoffee"); 
         const { id } = await params;
         const result = await db.collection("tables").deleteOne({ _id: new ObjectId(id) });
         if (result.deletedCount === 0) {

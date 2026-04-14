@@ -4,7 +4,7 @@ import clientPromise from "@/libs/mongodb";
 export async function GET(request) {
     try {
         const client = await clientPromise;
-        const db = client.db("Susan-Coffee"); 
+        const db = client.db("SusanCoffee"); 
         
         const productsList = await db.collection("products").find({}).toArray();
         return Response.json(productsList);
@@ -18,7 +18,7 @@ export async function GET(request) {
 export async function POST(request) {
     try {
         const client = await clientPromise;
-        const db = client.db("Susan-Coffee");
+        const db = client.db("SusanCoffee");
         
         // Đọc dữ liệu từ body của request gửi lên
         const body = await request.json();

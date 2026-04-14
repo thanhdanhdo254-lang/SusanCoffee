@@ -4,7 +4,7 @@ import { Code, ObjectId } from "mongodb";
 export async function GET(request) {
   try {
     const client = await clientPromise;
-    const db = client.db("Susan-Coffee");
+    const db = client.db("SusanCoffee");
 
     const orderList = await db.collection("orders").aggregate([
       {
@@ -37,7 +37,7 @@ export async function POST(request) {
     try {
         const client = await clientPromise;
         // SỬA TẠI ĐÂY: Điền tên database khớp với Compass (1 chữ f)
-        const db = client.db("Susan-Coffee"); 
+        const db = client.db("SusanCoffee"); 
 
         const body = await request.json();
         const {name, table_id, order_items, total} = body;
