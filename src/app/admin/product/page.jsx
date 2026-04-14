@@ -2,18 +2,26 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-export default function Product() {
+export default function AdminProduct() {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Tự động lấy URL API linh hoạt (Local hoặc Vercel)
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
-  // 1. Hàm lấy danh sách sản phẩm từ backend
+  // 1. Hàm tải danh sách sản phẩm
   async function fetchProducts() {
+    setLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/api/products");
-      const data = await res.json();
-      // Giả sử API trả về một mảng sản phẩm trực tiếp
-      setProducts(data);
+      const res = await fetch(`${API_URL}/api/products`);
+      if (res.ok) {
+        const data = await res.json();
+        setProducts(data);
+      }
     } catch (error) {
       console.error("Lỗi khi tải sản phẩm:", error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -21,85 +29,110 @@ export default function Product() {
     fetchProducts();
   }, []);
 
-  // 2. Hàm xử lý xóa sản phẩm
+  // 2. Hàm xóa sản phẩm
   const handleDelete = async (id) => {
-    if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này không?")) {
-      try {
-        const res = await fetch(`http://localhost:3000/api/products/${id}`, {
-          method: "DELETE",
-        });
-        const result = await res.json();
+    if (!confirm("Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?")) return;
 
-        if (res.ok || result.status === "success") {
-          alert("Xóa sản phẩm thành công!");
-          fetchProducts(); // Tải lại danh sách sau khi xóa
-        } else {
-          alert("Xóa thất bại: " + (result.message || "Lỗi server"));
-        }
-      } catch (error) {
-        alert("Không thể kết nối đến server");
+    try {
+      const res = await fetch(`${API_URL}/api/products/${id}`, {
+        method: "DELETE",
+      });
+      const result = await res.json();
+
+      if (res.ok || result.status === "success") {
+        alert("Đã xóa sản phẩm thành công!");
+        fetchProducts(); // Tải lại danh sách
+      } else {
+        alert("Xóa thất bại: " + (result.message || "Lỗi hệ thống"));
       }
+    } catch (error) {
+      alert("Lỗi kết nối server!");
     }
   };
 
   return (
-    <div className="content">
-      <div className="card shadow">
+    <div className="container-fluid py-4">
+      <div className="card shadow border-0">
+        <div className="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+          <h5 className="mb-0 fw-bold text-uppercase">Quản lý kho hàng</h5>
+          <Link className="btn btn-dark btn-sm px-3" href="/admin/product/create">
+            <i className="bi bi-plus-lg"></i> + Thêm sản phẩm mới
+          </Link>
+        </div>
+        
         <div className="card-body">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4 className="card-title">Danh sách sản phẩm</h4>
-            {/* Chuyển hướng sang trang thêm mới */}
-            <Link className="btn btn-outline-dark" href="/admin/product/create">
-              + Thêm sản phẩm
-            </Link>
-          </div>
           <div className="table-responsive">
-            <table className="table table-bordered align-middle">
-              <thead className="table-dark">
+            <table className="table table-hover align-middle">
+              <thead className="table-light">
                 <tr>
-                  <th>ID</th>
-                  <th>Tên sản phẩm</th>
-                  <th>Giá</th>
+                  <th style={{ width: "80px" }}>Ảnh</th>
+                  <th>Tên món / Đồ uống</th>
+                  <th>Phân loại</th>
+                  <th>Giá bán</th>
                   <th>Trạng thái</th>
-                  <th>Hành động</th>
+                  <th className="text-end">Hành động</th>
                 </tr>
               </thead>
               <tbody>
-                {products.length > 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan="6" className="text-center py-5">
+                      <div className="spinner-border spinner-border-sm text-secondary me-2"></div>
+                      Đang tải dữ liệu sản phẩm...
+                    </td>
+                  </tr>
+                ) : products.length > 0 ? (
                   products.map((product) => (
                     <tr key={product._id}>
-                      {/* Hiển thị 8 ký tự cuối của ID cho gọn */}
-                      <td>{product._id.slice(-8)}</td>
-                      <td>{product.name}</td>
-                      <td>{Number(product.price).toLocaleString()}đ</td>
                       <td>
-                        {product.status === "active" ? (
-                          <span className="badge bg-success">Đang bán</span>
-                        ) : (
-                          <span className="badge bg-secondary">Ngừng bán</span>
-                        )}
+                        <img 
+                          src={product.image || "/no-image.png"} 
+                          alt={product.name}
+                          className="rounded"
+                          style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                        />
                       </td>
                       <td>
-                        {/* Link đến trang sửa theo ID */}
-                        <Link
-                          href={`/admin/product/update/${product._id}`}
-                          className="btn btn-warning btn-sm me-2"
-                        >
-                          Sửa
-                        </Link>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(product._id)}
-                        >
-                          Xóa
-                        </button>
+                        <div className="fw-bold">{product.name}</div>
+                        <small className="text-muted">ID: {product._id.slice(-6)}</small>
+                      </td>
+                      <td>
+                        <span className="badge border text-dark fw-normal bg-light">
+                          {product.category || "Chưa phân loại"}
+                        </span>
+                      </td>
+                      <td className="fw-bold text-danger">
+                        {Number(product.price).toLocaleString()}đ
+                      </td>
+                      <td>
+                        {product.status === "active" ? (
+                          <span className="badge bg-success-subtle text-success px-3">Đang bán</span>
+                        ) : (
+                          <span className="badge bg-secondary-subtle text-secondary px-3">Ngừng bán</span>
+                        )}
+                      </td>
+                      <td className="text-end">
+                        <div className="btn-group">
+                          <Link
+                            href={`/admin/product/update/${product._id}`}
+                            className="btn btn-outline-warning btn-sm"
+                          >
+                            Sửa
+                          </Link>
+                          <button
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={() => handleDelete(product._id)}
+                          >
+                            Xóa
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="text-center">
-                      Không có sản phẩm nào hoặc đang tải...
+                    <td colSpan="6" className="text-center py-5 text-muted">
+                      Kho hàng trống. Vui lòng thêm sản phẩm đầu tiên!
                     </td>
                   </tr>
                 )}
